@@ -1,0 +1,10987 @@
+
+
+ .text
+
+
+main:
+ addi gp,zero,692
+ lui sp,0xff
+ addi sp,sp,-704
+ sw ra,700(sp)
+ sw s0,696(sp)
+ addi s0,sp,704
+ lui t0,0x700
+ add sp,sp,t0
+# const short Ncolor = 0, Wcolor = 0x7fff;
+ sh zero,-94(s0)
+ lui a5,0xffff8
+ not a5,a5
+ sh a5,-96(s0)
+# const short Hcolor = 0x03ff, Scolor = 0x03e0, Bcolor = 0x7fe0;
+ li a5,1023
+ sh a5,-98(s0)
+ li a5,992
+ sh a5,-100(s0)
+ lui a5,0xffff8
+ xori a5,a5,-32
+ sh a5,-102(s0)
+# const int L = 40, NUM = 20;
+ li a5,40
+ sw a5,-108(s0)
+ li a5,20
+ sw a5,-112(s0)
+# int dx[4], dy[4];
+# dx[0] = dy[1] = 1; 
+ li a5,1
+ sw a5,-180(s0)
+ lw a5,-180(s0)
+ sw a5,-168(s0)
+# dx[1] = dx[3] = dy[0] = dy[2] = 0;
+ sw zero,-176(s0)
+ lw a5,-176(s0)
+ sw a5,-184(s0)
+ lw a5,-184(s0)
+ sw a5,-156(s0)
+ lw a5,-156(s0)
+ sw a5,-164(s0)
+# dx[2] = dy[3] = -1;
+ li a5,-1
+ sw a5,-172(s0)
+ lw a5,-172(s0)
+ sw a5,-160(s0)
+
+
+# grid & des initialize
+# sw zero,-20(s0)
+# j initialLoop4
+#initialLoop1:
+# sw zero,-24(s0)
+# j initialLoop3
+#initialLoop2:
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a3,a5,s0
+# lw a4,-20(s0)
+# mv a5,a4
+# slli a5,a5,0x2
+# add a5,a5,a4
+# slli a5,a5,0x3
+# lw a4,-24(s0)
+# add a5,a5,a4
+# slli a5,a5,0x2
+# add a5,a3,a5
+# sw zero,-680(a5)
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a3,a5,s0
+# lw a4,-20(s0)
+# mv a5,a4
+# slli a5,a5,0x2
+# add a5,a5,a4
+# slli a5,a5,0x3
+# lw a4,-24(s0)
+# add a5,a5,a4
+# slli a5,a5,0x2
+# add a5,a3,a5
+# lw a3,-680(a5)
+# lui a5,0x701
+# addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+# add a2,a5,s0
+# lw a4,-20(s0)
+# mv a5,a4
+# slli a5,a5,0x2
+# add a5,a5,a4
+# slli a5,a5,0x3
+# lw a4,-24(s0)
+# add a5,a5,a4
+# slli a5,a5,0x2
+# add a5,a2,a5
+# sw a3,1624(a5)
+# lw a5,-24(s0)
+# addi a5,a5,1
+# sw a5,-24(s0)
+#initialLoop3:
+# lw a4,-24(s0)
+# li a5,39
+# bge a5,a4,initialLoop2
+# lw a5,-20(s0)
+# addi a5,a5,1
+# sw a5,-20(s0)
+#initialLoop4:
+# lw a4,-20(s0)
+# li a5,39
+# bge a5,a4,initialLoop1
+ 
+# const int A = 31, B = 17, P = 257;
+ li a5,31
+ sw a5,-116(s0)
+ li a5,17
+ sw a5,-120(s0)
+ li a5,257
+ sw a5,-124(s0)
+# const int startC = (128 - L) / 2;
+ li a5,44
+ sw a5,-128(s0)
+# Display display;
+# int x = 0, y = 0;
+ sw zero,-28(s0)
+ sw zero,-32(s0)
+# int tailx = 0, taily = 0;
+ sw zero,-36(s0)
+ sw zero,-40(s0)
+# int len = 0;
+ sw zero,-44(s0)
+# cur = 0, seed = 0;
+ sw zero,-692(gp) # 14a54 <cur>
+ sw zero,-688(gp) # 14a58 <seed>
+ 
+# snake scale initialize
+# bottom boundary
+ li a5,-1
+ sw a5,-48(s0)
+ j scaleLoop2
+scaleLoop1:
+ lw a5,-48(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,-1
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ lui a4,0xffff8
+ not a4,a4
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay
+ lw a5,-48(s0)
+ addi a5,a5,1
+ sw a5,-48(s0)
+scaleLoop2:
+ lw a4,-48(s0)
+ li a5,40
+ bge a5,a4,scaleLoop1
+ 
+# right boundary
+ sw zero,-52(s0)
+ j scaleLoop4
+scaleLoop3:
+ lw a5,-52(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a3,40
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ lui a4,0xffff8
+ not a4,a4
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay
+ lw a5,-52(s0)
+ addi a5,a5,1
+ sw a5,-52(s0)
+scaleLoop4:
+ lw a4,-52(s0)
+ li a5,39
+ bge a5,a4,scaleLoop3
+ 
+# top boundary
+ li a5,40
+ sw a5,-56(s0)
+ j scaleLoop6
+scaleLoop5:
+ lw a5,-56(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,40
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ lui a4,0xffff8
+ not a4,a4
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay
+ lw a5,-56(s0)
+ addi a5,a5,-1
+ sw a5,-56(s0)
+scaleLoop6:
+ lw a4,-56(s0)
+ li a5,-1
+ bge a4,a5,scaleLoop5
+ 
+# left boundary
+ li a5,39
+ sw a5,-60(s0)
+ j scaleLoop8
+scaleLoop7:
+ lw a5,-60(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a3,-1
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ lui a4,0xffff8
+ not a4,a4
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay
+ lw a5,-60(s0)
+ addi a5,a5,-1
+scaleLoop8:
+ sw a5,-60(s0)
+ lw a5,-60(s0)
+ bgez a5,scaleLoop7
+ 
+start:
+
+ nop
+ 
+# rand cur x y
+# rand cur
+# cur = rand(seed + x + y + cur, A, B, P) % 4;
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a4,a0
+ srai a5,a4,0x1f
+ srli a5,a5,0x1e
+ add a4,a4,a5
+ andi a4,a4,3
+ sub a5,a4,a5
+ mv a4,a5
+ sw a4,-692(gp) # 14a54 <cur>
+# rand x
+# x = rand(seed + x + y + cur, A, B, P) % (L - 8) + 4;
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a4,a0
+ srai a5,a4,0x1f
+ srli a5,a5,0x1b
+ add a4,a4,a5
+ andi a4,a4,31
+ sub a5,a4,a5
+ addi a5,a5,4
+ sw a5,-28(s0)
+# rand y
+# y = rand(seed + x + y + cur, A, B, P) % (L - 8) + 4;
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a4,a0
+ srai a5,a4,0x1f
+ srli a5,a5,0x1b
+ add a4,a4,a5
+ andi a4,a4,31
+ sub a5,a4,a5
+ addi a5,a5,4
+ sw a5,-32(s0)
+ 
+# snake initialize
+# for (int i = 0; i < 4; i++){
+ sw zero,-64(s0)
+ j snakeInitialLoop4
+snakeInitialLoop1:
+# tailx = x - i * dx[cur], taily = y - i * dy[cur];
+ lw a4,-692(gp) # 14a54 <cur>
+ addi a5,s0,-168
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+ lw a1,-64(s0)
+# use mul to replace __mulsi3
+# mv a0,a5
+# jal 11468 <__mulsi3>
+# mv a5,a0
+# mv a4,a5
+ mul a4,a5,a1
+ lw a5,-28(s0)
+ sub a5,a5,a4
+ sw a5,-36(s0)
+ lw a4,-692(gp) # 14a54 <cur>
+ addi a5,s0,-184
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+# lw a1,-64(s0) ##because a1 is not changed
+# mv a0,a5
+# jal 11468 <__mulsi3>
+# mv a5,a0
+# mv a4,a5
+ mul a4,a5,a1
+ lw a5,-32(s0)
+ sub a5,a5,a4
+ sw a5,-40(s0)
+# grid[tailx][taily] = 1;
+ lui a5,0x701
+ addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+ add a3,a5,s0
+ lw a4,-36(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-40(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ li a4,1
+ sw a4,1624(a5)
+# des[tailx][taily] = cur;
+ lw a3,-692(gp) # 14a8c <cur>
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe8234>
+ add a2,a5,s0
+ lw a4,-36(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-40(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a2,a5
+ sw a3,-680(a5)
+# if (i == 0)
+ lw a5,-64(s0)
+ bnez a5,snakeInitialLoop2
+# display = {(char)tailx, (char)taily, Hcolor};
+ lw a5,-36(s0)
+ andi a3,a5,0xff
+ lw a5,-40(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,1023
+ sh a4,-682(a5)
+ j snakeInitialLoop3
+snakeInitialLoop2:
+# else display = {(char)tailx, (char)taily, Scolor};
+ lw a5,-36(s0)
+ andi a3,a5,0xff
+ lw a5,-40(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,992
+ sh a4,-682(a5)
+
+snakeInitialLoop3:
+# output(display, startC);
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay
+# for (int i = 0; i < 4; i++)
+ lw a5,-64(s0)
+ addi a5,a5,1
+ sw a5,-64(s0)
+snakeInitialLoop4:
+ lw a4,-64(s0)
+ li a5,3
+ bge a5,a4,snakeInitialLoop1
+ 
+# len = 4;
+ li a5,4
+ sw a5,-44(s0)
+ 
+# beed initialize
+# for (int i = 0; i < NUM;) {
+ sw zero,-68(s0)
+ j beedInitialLoop2
+beedInitialLoop1:
+# int tx = rand(seed + x + y + cur, A, B, P) % L, ty = rand(seed + x + y + cur, A, B, P) % L;
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a4,a0
+# srai a5,a4,0x1f   # change L (previous 128, now 40)
+# srli a5,a5,0x19
+# add a4,a4,a5
+# andi a4,a4,127
+# sub a5,a4,a5
+ li a1,40
+ remu a5,a4,a1
+ sw a5,-148(s0)
+ 
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a4,a0
+# srai a5,a4,0x1f   # change L (previous 128, now 40)
+# srli a5,a5,0x19
+# add a4,a4,a5
+# andi a4,a4,127
+# sub a5,a4,a5
+ li a1,40
+ remu a5,a4,a1
+ sw a5,-152(s0)
+ lui a5,0x701
+ addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+ add a3,a5,s0
+ lw a4,-148(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-152(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ lw a5,1624(a5)
+ bnez a5,beedInitialLoop2
+ lui a5,0x701
+ addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+ add a3,a5,s0
+ lw a4,-148(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-152(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ li a4,2
+ sw a4,1624(a5)
+ lw a5,-148(s0)
+ andi a3,a5,0xff
+ lw a5,-152(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ lui a4,0xffff8
+ xori a4,a4,-32
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay
+ lw a5,-68(s0)
+ addi a5,a5,1
+ sw a5,-68(s0)
+beedInitialLoop2:
+ lw a4,-68(s0)
+ li a5,19
+ bge a5,a4,beedInitialLoop1
+ 
+ 
+# coreLoop part
+nextStep:
+# open interrupt
+ csrrsi zero,0x4,1
+ nop
+# close interrupt
+ csrrci zero,0x4,1
+ lw a4,-692(gp) # 14a54 <cur>
+ addi a5,s0,-168
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+ lw a4,-28(s0)
+ add a5,a4,a5
+ sw a5,-132(s0)
+ lw a4,-692(gp) # 14a54 <cur>
+ addi a5,s0,-184
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+ lw a4,-32(s0)
+ add a5,a4,a5
+ sw a5,-136(s0)
+ 
+ lw a5,-132(s0) # judge Is out bound
+ bltz a5,beforeEnd
+ lw a4,-132(s0)
+ li a5,39
+ blt a5,a4,beforeEnd
+ lw a5,-136(s0)
+ bltz a5,beforeEnd
+ lw a4,-136(s0)
+ li a5,39
+ blt a5,a4,beforeEnd
+ 
+ lui a5,0x701
+ addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+ add a3,a5,s0
+ lw a4,-132(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-136(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ lw a4,1624(a5)
+ li a5,1
+ bne a4,a5,eatBeed
+
+
+ lw a4,-132(s0)
+ lw a5,-36(s0)
+ bne a4,a5,beforeEnd2
+ lw a4,-136(s0)
+ lw a5,-40(s0)
+ bne a4,a5,beforeEnd2
+ 
+ # snake head arrive snake tail
+ lw a5,-36(s0)
+ andi a3,a5,0xff
+ lw a5,-40(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sh zero,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a3,a5,s0
+ lw a4,-36(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-40(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ lw a5,-680(a5)
+ sw a5,-144(s0)
+ lw a4,-144(s0)
+ addi a5,s0,-168
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+ lw a4,-36(s0)
+ add a5,a4,a5
+ sw a5,-36(s0)
+ lw a4,-144(s0)
+ addi a5,s0,-184
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+ lw a4,-40(s0)
+ add a5,a4,a5
+ sw a5,-40(s0)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake tail move
+ lw a5,-28(s0)
+ andi a3,a5,0xff
+ lw a5,-32(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,992
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake head change to body
+ lw a5,-132(s0)
+ andi a3,a5,0xff
+ lw a5,-136(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,1023
+ sh a4,-682(a5)
+ lw a3,-692(gp) # 14a54 <cur>
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a2,a5,s0
+ lw a4,-28(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-32(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a2,a5
+ sw a3,-680(a5)
+ lw a5,-132(s0)
+ sw a5,-28(s0)
+ lw a5,-136(s0)
+ sw a5,-32(s0)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake head move
+ j beforeEnd
+ 
+# eat beed
+eatBeed:
+ lui a5,0x701
+ addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+ add a3,a5,s0
+ lw a4,-132(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-136(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ lw a4,1624(a5)
+ li a5,2
+ bne a4,a5,stepForward
+# if (L * L - len > 200) {
+ li a4,1600
+ lw a5,-44(s0)
+ sub a4,a4,a5
+ li a5,200
+ bge a5,a4,generateBeedLoopEnd
+# int tx = rand(seed + x + y + cur, A, B, P) % L, ty = rand(seed + x + y + cur, A, B, P) % L;
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a5,a0
+ li a1,40
+# mv a0,a5
+# jal 11510 <__modsi3>
+# mv a5,a0
+ remu a5,a5,a1 # use remu to replace modsi3
+ sw a5,-72(s0)
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a5,a0
+ li a1,40
+# mv a0,a5
+# jal 11510 <__modsi3>
+# mv a5,a0
+ remu a5,a5,a1 #use remu to replace modsi3
+ sw a5,-76(s0)
+# while (grid[tx][ty] != 0)
+ j generateBeedLoop2
+generateBeedLoop1:
+# tx = rand(seed + x + y + cur, A, B, P) % L, ty = rand(seed + x + y + cur, A, B, P) % L;
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a5,a0
+ li a1,40
+# mv a0,a5
+# jal 11510 <__modsi3>
+# mv a5,a0
+ remu a5,a5,a1 # use remu to replace modsi3
+ sw a5,-72(s0)
+ lw a4,-688(gp) # 14a58 <seed>
+ lw a5,-28(s0)
+ add a4,a4,a5
+ lw a5,-32(s0)
+ add a4,a4,a5
+ lw a5,-692(gp) # 14a54 <cur>
+ add a5,a4,a5
+ li a3,257
+ li a2,17
+ li a1,31
+ mv a0,a5
+ jal rand
+ mv a5,a0
+ li a1,40
+# mv a0,a5
+# jal 11510 <__modsi3>
+# mv a5,a0
+ remu a5,a5,a1 # use remu to replace modsi3
+ sw a5,-76(s0)
+generateBeedLoop2:
+ lui a5,0x701
+ addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+ add a3,a5,s0
+ lw a4,-72(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-76(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ lw a5,1624(a5)
+ bnez a5,generateBeedLoop1
+ lw a5,-72(s0)
+ andi a3,a5,0xff
+ lw a5,-76(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ lui a4,0xffff8
+ xori a4,a4,-32
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # generate new beed
+# generate beed loop end
+generateBeedLoopEnd:
+ lui a5,0x701
+ addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+ add a3,a5,s0
+ lw a4,-132(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-136(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ li a4,1
+ sw a4,1624(a5)
+ lw a5,-44(s0)
+ addi a5,a5,1
+ sw a5,-44(s0)
+ lw a5,-28(s0)
+ andi a3,a5,0xff
+ lw a5,-32(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,992
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake head change to body
+ lw a5,-132(s0)
+ andi a3,a5,0xff
+ lw a5,-136(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,1023
+ sh a4,-682(a5)
+ lw a3,-692(gp) # 14a54 <cur>
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a2,a5,s0
+ lw a4,-28(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-32(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a2,a5
+ sw a3,-680(a5)
+ lw a5,-132(s0)
+ sw a5,-28(s0)
+ lw a5,-136(s0)
+ sw a5,-32(s0)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake head move
+ j nextStep
+ 
+# step forward
+stepForward:
+ lw a5,-36(s0)
+ andi a3,a5,0xff
+ lw a5,-40(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sh zero,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a3,a5,s0
+ lw a4,-36(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-40(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a3,a5
+ lw a5,-680(a5)
+ sw a5,-140(s0)
+ lw a4,-140(s0)
+ addi a5,s0,-168
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+ lw a4,-36(s0)
+ add a5,a4,a5
+ sw a5,-36(s0)
+ lw a4,-140(s0)
+ addi a5,s0,-184
+ slli a4,a4,0x2
+ add a5,a4,a5
+ lw a5,0(a5)
+ lw a4,-40(s0)
+ add a5,a4,a5
+ sw a5,-40(s0)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake tail move
+ lw a5,-28(s0)
+ andi a3,a5,0xff
+ lw a5,-32(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,992
+ sh a4,-682(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake head change to body
+ lw a5,-132(s0)
+ andi a3,a5,0xff
+ lw a5,-136(s0)
+ andi a4,a5,0xff
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a3,-684(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ sb a4,-683(a5)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a4,1023
+ sh a4,-682(a5)
+ lw a3,-692(gp) # 14a54 <cur>
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a2,a5,s0
+ lw a4,-28(s0)
+ mv a5,a4
+ slli a5,a5,0x2
+ add a5,a5,a4
+ slli a5,a5,0x3
+ lw a4,-32(s0)
+ add a5,a5,a4
+ slli a5,a5,0x2
+ add a5,a2,a5
+ sw a3,-680(a5)
+ lw a5,-132(s0)
+ sw a5,-28(s0)
+ lw a5,-136(s0)
+ sw a5,-32(s0)
+ lui a5,0x700
+ addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+ add a5,a5,s0
+ li a1,44
+ lw a0,-684(a5)
+ jal outputDisplay # snake head move
+ j nextStep
+beforeEnd:
+ nop
+ j end
+beforeEnd2:
+ nop
+end:
+ sw zero,-44(s0)
+ 
+ # reset the grid and the memory
+ addi a7,zero,34
+ li a0,0x7fff2c2c
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,217
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ addi a0,a0,1
+ ecall
+ lui a5,0x800
+ addi a5,a5,1604
+ li a0,0x2c2c
+ addi a5,a5,4
+ sw zero,0(a5)
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,217
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+ addi a5,a5,4
+ sw zero,0(a5)
+ addi a0,a0,1
+ ecall
+
+
+ 
+# change all grids to White
+# sw zero,-80(s0)
+# j endLoop4
+#endLoop1:
+# sw zero,-84(s0)
+# j endLoop3
+#endLoop2:
+# lw a5,-80(s0)
+# andi a3,a5,0xff
+# lw a5,-84(s0)
+# andi a4,a5,0xff
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# sb a3,-684(a5)
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# sb a4,-683(a5)
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# lui a4,0xffff8
+# not a4,a4
+# sh a4,-682(a5)
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# li a1,44
+# lw a0,-684(a5)
+# jal outputDisplay # change to White
+# lw a5,-84(s0)
+# addi a5,a5,1
+# sw a5,-84(s0)
+#endLoop3:
+# lw a4,-84(s0)
+# li a5,39
+# bge a5,a4,endLoop2
+# lw a5,-80(s0)
+# addi a5,a5,1
+# sw a5,-80(s0)
+#endLoop4:
+# lw a4,-80(s0)
+# li a5,39
+# bge a5,a4,endLoop1
+ 
+# change all grids to Black 
+# sw zero,-88(s0)
+# j endLoop8
+#endLoop5:
+# sw zero,-92(s0)
+# j endLoop7
+#endLoop6:
+# lui a5,0x701
+# addi a5,a5,-16 # ffffdff0 <__BSS_END__+0xfffe926c>
+# add a3,a5,s0
+# lw a4,-88(s0)
+# mv a5,a4
+# slli a5,a5,0x2
+# add a5,a5,a4
+# slli a5,a5,0x3
+# lw a4,-92(s0)
+# add a5,a5,a4
+# slli a5,a5,0x2
+# add a5,a3,a5
+# sw zero,1624(a5)
+# lw a5,-88(s0)
+# andi a3,a5,0xff
+# lw a5,-92(s0)
+# andi a4,a5,0xff
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# sb a3,-684(a5)
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# sb a4,-683(a5)
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# sh zero,-682(a5)
+# lui a5,0x700
+# addi a5,a5,-16 # ffffcff0 <__BSS_END__+0xfffe826c>
+# add a5,a5,s0
+# li a1,44
+# lw a0,-684(a5)
+# jal outputDisplay # change to Black
+# lw a5,-92(s0)
+# addi a5,a5,1
+# sw a5,-92(s0)
+#endLoop7:
+# lw a4,-92(s0)
+# li a5,39
+# bge a5,a4,endLoop6
+# lw a5,-88(s0)
+# addi a5,a5,1
+# sw a5,-88(s0)
+#endLoop8:
+# lw a4,-88(s0)
+# li a5,39
+# bge a5,a4,endLoop5
+ jal pause
+ j start
+
+outputDisplay:
+ addi sp,sp,-32
+ sw ra,28(sp)
+ sw s0,24(sp)
+ addi s0,sp,32
+ sw a0,-20(s0)
+ sw a1,-24(s0)
+# x.x += (char)startC, x.y += (char)startC;
+ lb a4,-20(s0)
+ lw a5,-24(s0)
+ andi a5,a5,0xff
+ add a5,a4,a5
+ andi a5,a5,0xff
+ sb a5,-20(s0)
+ lb a4,-19(s0)
+ lw a5,-24(s0)
+ andi a5,a5,0xff
+ add a5,a4,a5
+ andi a5,a5,0xff
+ sb a5,-19(s0)
+ lw a0,-20(s0) #
+ addi a7,zero,34
+ ecall # output display
+ nop
+ lw ra,28(sp)
+ lw s0,24(sp)
+ addi sp,sp,32
+ ret
+
+pause:
+ addi sp,sp,-16
+ sw ra,12(sp)
+ sw s0,8(sp)
+ addi s0,sp,16
+ addi a7,zero,10
+ ecall # wait game begin
+ nop
+ lw ra,12(sp)
+ lw s0,8(sp)
+ addi sp,sp,16
+ ret
+
+rand:
+ addi sp,sp,-32
+ sw ra,28(sp)
+ sw s0,24(sp)
+ addi s0,sp,32
+ sw a0,-20(s0)
+ sw a1,-24(s0)
+ sw a2,-28(s0)
+ sw a3,-32(s0)
+ lw a1,-20(s0)
+# lw a0,-24(s0)
+# # jal 11468 <__mulsi3>
+# mul a0,a0,a1
+# mv a5,a0
+# mv a4,a5
+ lw a4,-24(s0)
+ mul a4,a4,a1 # use mul to replace mulsi3
+ lw a5,-28(s0)
+ add a5,a4,a5
+ lw a1,-32(s0)
+# mv a0,a5
+# # jal 11510 <__modsi3>
+# remu a0,a0,a1
+# mv a5,a0
+# mv a4,a5
+ mv a4,a5
+ remu a4,a4,a1
+ sw a4,-688(gp) # 14a58 <seed>
+ lw a5,-688(gp) # 14a58 <seed>
+ mv a0,a5
+ lw ra,28(sp)
+ lw s0,24(sp)
+ addi sp,sp,32
+ ret
+
+changeR:
+ addi sp,sp,-16
+ sw ra,12(sp)
+ sw s0,8(sp)
+ addi s0,sp,16
+changeRInt:
+ lw a4,-692(gp) # 14a54 <cur> InterruptR
+ li a5,2
+ beq a4,a5,changeRJump
+ sw zero,-692(gp) # 14a54 <cur>
+changeRJump:
+ nop
+ uret
+ lw ra,12(sp)
+ lw s0,8(sp)
+ addi sp,sp,16
+ ret
+
+changeD:
+ addi sp,sp,-16
+ sw ra,12(sp)
+ sw s0,8(sp)
+ addi s0,sp,16
+changeDInt:
+ lw a4,-692(gp) # 14a54 <cur> InterruptD
+ li a5,3
+ beq a4,a5,changeDJump
+ li a4,1
+ sw a4,-692(gp) # 14a54 <cur>
+changeDJump:
+ nop
+ uret
+ lw ra,12(sp)
+ lw s0,8(sp)
+ addi sp,sp,16
+ ret
+
+changeL:
+ addi sp,sp,-16
+ sw ra,12(sp)
+ sw s0,8(sp)
+ addi s0,sp,16
+changeLInt:
+ lw a5,-692(gp) # 14a54 <cur> InterruptL
+ beqz a5,changeLJump
+ li a4,2
+ sw a4,-692(gp) # 14a54 <cur>
+changeLJump:
+ nop
+ uret
+ lw ra,12(sp)
+ lw s0,8(sp)
+ addi sp,sp,16
+ ret
+
+changeU:
+ addi sp,sp,-16
+ sw ra,12(sp)
+ sw s0,8(sp)
+ addi s0,sp,16
+changeUInt:
+ lw a4,-692(gp) # 14a54 <cur> InterruptU
+ li a5,1
+ beq a4,a5,changeUJump
+ li a4,3
+ sw a4,-692(gp) # 14a54 <cur>
+changeUJump:
+ nop
+ uret
+ lw ra,12(sp)
+ lw s0,8(sp)
+ addi sp,sp,16
+ ret
+
+ 
